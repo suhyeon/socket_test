@@ -127,19 +127,25 @@ chatNsp.on('connection', socket => {
   // 해당 소켓을 room에 연결시킨다.
   // 클라이언트에 username을 보낸다.
   // 유저가 접속했다는 사실을 다른 모든 유저에게 전송한다.
-socket.on('join', data => {
+socket.on('join', (data, ack) => {
   roomId = data.id
   socket.join(roomId)
   //로그인여부를 본인이외의 다른사람들에게 공지 = broadcast
   socket.broadcast.to(roomId).emit('user connected', {username})
+  ack({username})
 })
 
   // chat 이벤트
   // 성공적으로 전송되었다는 사실을 클라이언트에 알림
   // 해당 클라이언트를 제외한 모든 클라이언트에게 메시지 전송
-  socket.on('clientchat', data => {
+  socket.on('new chat', (data, ack) => {
     // 위에는 client가 발생하는 ‘chat’ 밑에는는 server가 발생 ‘chat’
-    chatNsp.to(roomId).emit('chat', data)
+   // chatNsp.to(roomId).emit('serverchat', data)
+    socket.broadcast.to(roomId).emit('chat', {
+      message: data.message,
+      username
+    })
+    ack({ok: true})
   })
 
   // disconnect 내장 이벤트
