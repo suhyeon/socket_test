@@ -130,6 +130,8 @@ chatNsp.on('connection', socket => {
 socket.on('join', data => {
   roomId = data.id
   socket.join(roomId)
+  //로그인여부를 본인이외의 다른사람들에게 공지 = broadcast
+  socket.broadcast.to(roomId).emit('user connected', {username})
 })
 
   // chat 이벤트
@@ -137,14 +139,22 @@ socket.on('join', data => {
   // 해당 클라이언트를 제외한 모든 클라이언트에게 메시지 전송
   socket.on('clientchat', data => {
     // 위에는 client가 발생하는 ‘chat’ 밑에는는 server가 발생 ‘chat’
-    chatNsp.to(roomId).emit('serverchat', data)
+    chatNsp.to(roomId).emit('chat', data)
   })
 
   // disconnect 내장 이벤트
   // 한 클라이언트의 연결이 끊어졌을 때
   // 다른 모든 클라이언트에 알림
+  socket.on('disconnect', ()=>{
+    chatNsp.to(roomId).emit('user disconnected', {username})
+  })
 })
 
+  //room-exit(leave) 이벤트
+  //해당 클라이언트를 제외한 모든 클라이언트에게 방을 나갔다는 메시지 전송
+ // socket.on('room_exit', () => {
+   // chatNsp.to(roomId).emit()
+  //})
 httpServer.listen(PORT, () => {
   console.log(`listenning ${PORT}...`)
 })

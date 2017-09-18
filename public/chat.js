@@ -34,13 +34,16 @@ formEl.addEventListener('submit', e => {
 })
 
    // (chat) 채팅 메시지가 올 때마다 출력
-    socket.on('serverchat', data => {
+    socket.on('chat', data => {
       appendText(messageListEl,data.message)
     })
   // (user connected) 새 사용자가 접속한 사실을 출력
 
-
+    socket.on('user connected', data => {
+      appendText(messageListEl, `${data.username}님이 접속하셨습니다.`)
+    })
   // (user disconnected) 사용자의 연결이 끊어졌다는 사실을 출력
-
-
+    socket.on('user disconnected', data => {
+      appendText(messageListEl, `${data.username}님이 접속이 끊겼습니다.`)
+    })
 })
